@@ -1,0 +1,69 @@
+import hashlib
+import time
+
+# Function to compute hash using MD5
+def compute_md5(message):
+    md5_hash = hashlib.md5()
+    md5_hash.update(message.encode('utf-8'))  # Convert the message to bytes
+    return md5_hash.hexdigest()
+
+# Function to compute hash using SHA-1
+def compute_sha1(message):
+    sha1_hash = hashlib.sha1()
+    sha1_hash.update(message.encode('utf-8'))  # Convert the message to bytes
+    return sha1_hash.hexdigest()
+
+# Function to test the integrity of a message
+def test_integrity(original_message, hash_value, algorithm):
+    if algorithm == "MD5":
+        recalculated_hash = compute_md5(original_message)
+    elif algorithm == "SHA-1":
+        recalculated_hash = compute_sha1(original_message)
+    else:
+        return False
+    # Check if the recalculated hash matches the original hash
+    return recalculated_hash == hash_value
+
+# Function to compare the performance of MD5 and SHA-1
+def compare_performance(message):
+    # Time MD5 computation
+    start_time = time.time()
+    md5_hash = compute_md5(message)
+    md5_time = time.time() - start_time
+
+    # Time SHA-1 computation
+    start_time = time.time()
+    sha1_hash = compute_sha1(message)
+    sha1_time = time.time() - start_time
+
+    return md5_hash, sha1_hash, md5_time, sha1_time
+
+# Main function
+def main():
+    # Take messages of varying sizes from the user
+    print("Enter messages (type 'done' to finish):")
+    messages = []
+    while True:
+        message = input("Message: ")
+        if message.lower() == "done":
+            break
+        messages.append(message)
+
+    # Process each message
+    for i, message in enumerate(messages):
+        print(f"\nMessage {i + 1}: {message}")
+        # Compute MD5 and SHA-1 hashes and compare performance
+        md5_hash, sha1_hash, md5_time, sha1_time = compare_performance(message)
+        print(f"MD5 Hash: {md5_hash}")
+        print(f"SHA-1 Hash: {sha1_hash}")
+        print(f"MD5 Time Taken: {md5_time:.6f} seconds")
+        print(f"SHA-1 Time Taken: {sha1_time:.6f} seconds")
+
+        # Verify message integrity
+        md5_valid = test_integrity(message, md5_hash, "MD5")
+        sha1_valid = test_integrity(message, sha1_hash, "SHA-1")
+        print(f"MD5 Integrity Check: {'Valid' if md5_valid else 'Invalid'}")
+        print(f"SHA-1 Integrity Check: {'Valid' if sha1_valid else 'Invalid'}")
+
+if __name__ == "__main__":
+    main()

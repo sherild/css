@@ -1,0 +1,88 @@
+import random
+
+def gcd(a, b):
+    while b != 0:
+        a, b = b, a % b
+    return a
+
+
+def modular_inverse(e, phi):
+    t1, t2 = 0, 1
+    phi_orig = phi
+    while e > 0:
+        q = phi // e
+        phi, e = e, phi % e
+        t1, t2 = t2, t1 - q * t2
+    return t1 + phi_orig if t1 < 0 else t1
+
+
+def generate_keys():
+    # Choose two small prime numbers for simplicity
+    p = 61
+    q = 53
+    n = p * q
+    phi = (p - 1) * (q - 1)
+    
+    # Choose e such that 1 < e < phi and gcd(e, phi) = 1
+    e = 3
+    while gcd(e, phi) != 1:
+        e += 2
+    
+    # Compute d such that (e * d) % phi = 1
+    d = modular_inverse(e, phi)
+    
+    # Public key (e, n) and private key (d, n)
+    return (e, n), (d, n)
+
+
+def encrypt(message, public_key):
+    e, n = public_key
+    return [pow(ord(char), e, n) for char in message]
+
+
+def decrypt(ciphertext, private_key):
+    d, n = private_key
+    return ''.join([chr(pow(char, d, n)) for char in ciphertext])
+
+
+def sign(message, private_key):
+    d, n = private_key
+    # Generate a simple hash by summing ASCII values of the message
+    message_hash = sum(ord(char) for char in message)
+    return pow(message_hash, d, n)
+
+def verify(message, signature, public_key):
+    e, n = public_key
+    message_hash = sum(ord(char) for char in message)
+    verified_hash = pow(signature, e, n)
+    return message_hash == verified_hash
+
+# Main function
+def main():
+    # Generate RSA keys
+    public_key, private_key = generate_keys()
+    print(f"Public Key: {public_key}")
+    print(f"Private Key: {private_key}")
+    
+
+    message = input("\nEnter the message to encrypt and sign: ")
+    print(f"\nOriginal Message: {message}")
+    
+
+    encrypted_message = encrypt(message, public_key)
+    print(f"Encrypted Message: {encrypted_message}")
+    
+  
+    decrypted_message = decrypt(encrypted_message, private_key)
+    print(f"Decrypted Message: {decrypted_message}")
+    
+    
+    signature = sign(message, private_key)
+    print(f"\nDigital Signature: {signature}")
+    
+   
+    is_verified = verify(message, signature, public_key)
+    print(f"Signature Verified: {is_verified}")
+
+if __name__ == "__main__":
+    main()

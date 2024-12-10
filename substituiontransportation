@@ -1,0 +1,78 @@
+# Substitution Cipher
+def substitution_encrypt(plaintext, key):
+    alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    key_map = {alphabet[i]: key[i] for i in range(len(alphabet))}
+    ciphertext = "".join(key_map[char] if char in key_map else char for char in plaintext.upper())
+    return ciphertext
+
+def substitution_decrypt(ciphertext, key):
+    alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    key_map = {key[i]: alphabet[i] for i in range(len(alphabet))}
+    plaintext = "".join(key_map[char] if char in key_map else char for char in ciphertext.upper())
+    return plaintext
+
+# Transposition Cipher
+def transposition_encrypt(plaintext, key):
+    ciphertext = [""] * key
+    for col in range(key):
+        pointer = col
+        while pointer < len(plaintext):
+            ciphertext[col] += plaintext[pointer]
+            pointer += key
+    return "".join(ciphertext)
+
+def transposition_decrypt(ciphertext, key):
+    num_cols = len(ciphertext) // key
+    num_rows = key
+    num_shaded_boxes = len(ciphertext) % key
+    plaintext = [""] * num_cols
+    col = 0
+    row = 0
+    for char in ciphertext:
+        plaintext[col] += char
+        col += 1
+        if (col == num_cols) or (col == num_cols - 1 and row >= num_shaded_boxes):
+            col = 0
+            row += 1
+    return "".join(plaintext)
+
+# Main function to demonstrate both ciphers
+def main():
+    print("Choose Cipher:")
+    print("1. Substitution Cipher")
+    print("2. Transposition Cipher")
+    choice = int(input("Enter your choice (1 or 2): "))
+
+    if choice == 1:
+        print("\nSubstitution Cipher")
+        key = input("Enter substitution key (26 unique letters): ").upper()
+        if len(key) != 26 or len(set(key)) != 26:
+            print("Invalid key! The key must contain exactly 26 unique letters.")
+            return
+        plaintext = input("Enter plaintext: ")
+        ciphertext = substitution_encrypt(plaintext, key)
+        print(f"Ciphertext: {ciphertext}")
+        decrypted_text = substitution_decrypt(ciphertext, key)
+        print(f"Decrypted Text: {decrypted_text}")
+
+    elif choice == 2:
+        print("\nTransposition Cipher")
+        try:
+            key = int(input("Enter the key (number of columns): "))
+            if key <= 0:
+                print("Invalid key! Key must be a positive integer.")
+                return
+        except ValueError:
+            print("Invalid key! Key must be an integer.")
+            return
+        plaintext = input("Enter plaintext: ")
+        ciphertext = transposition_encrypt(plaintext, key)
+        print(f"Ciphertext: {ciphertext}")
+        decrypted_text = transposition_decrypt(ciphertext, key)
+        print(f"Decrypted Text: {decrypted_text}")
+
+    else:
+        print("Invalid choice. Please select 1 or 2.")
+
+if __name__ == "__main__":
+    main()
